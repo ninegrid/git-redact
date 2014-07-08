@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# alias this script to redact with:
+# git config --global alias.redact '!sh git-redact'
+
+set -o errexit
+
+if [ $# -eq 0 ]; then
+  exit 0
+fi
+
+# TODO: detect .git folder in parent directories
+if [ ! -d .git ]; then
+  # echo "fatal: Not a git repository (or any of the parent directories): .git)"
+  echo "fatal: Not a git repository: .git)"
+  exit 1
+fi
+
+paths=$@
+git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch $paths" HEAD
+rm -rf .git/refs/original && git reflog expire --all && git gc --aggressive --prune
